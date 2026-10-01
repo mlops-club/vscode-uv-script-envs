@@ -4,7 +4,7 @@
 
 # uv Script Envs
 
-**Autocompletion for Python scripts that declare their own dependencies.**
+**Autocompletion: Automatically create and activate python environments in VS Code for uv scripts**
 
 <a href="https://marketplace.visualstudio.com/items?itemName=mlops-club.uv-script-envs"><img src="https://img.shields.io/badge/VS%20Code%20Marketplace-install-22C55E?style=for-the-badge&logo=uv&logoColor=white" alt="Install from the VS Code Marketplace" /></a>
 <a href="https://github.com/mlops-club/vscode-uv-script-envs/releases/latest"><img src="https://img.shields.io/github/v/release/mlops-club/vscode-uv-script-envs?style=for-the-badge&logo=github&label=release&color=16A34A" alt="Latest release" /></a>
