@@ -3,6 +3,7 @@
 ## 0.1.3
 
 - First version in its own repository, published by CI.
+- An icon, and two demo recordings linked from the README.
 - Warns once when the Python Environments extension (`ms-python.vscode-python-envs`) is installed: with it,
   Pylance keeps resolving a script's imports against another environment.
 

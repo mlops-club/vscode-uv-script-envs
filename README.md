@@ -22,6 +22,13 @@ import httpx        # resolves, with completion
 import my_package   # so does this
 ```
 
+## Demos
+
+- [Quick switch (6 s)](docs/quick-env-switch.mp4): clicking between two scripts in one folder, each getting its
+  own interpreter.
+- [Slow switch (47 s)](docs/slow-env-switch.mp4): the same, in depth. It shows each script's `# /// script`
+  block, and that the imports which resolve are the ones that block declares.
+
 ## Requirements
 
 - [uv](https://docs.astral.sh/uv/getting-started/installation/) on your `PATH`.
@@ -135,11 +142,34 @@ by hand after a change to how the interpreter is selected.
 CI publishes that version to the Marketplace, then tags it `v<version>` and attaches the `.vsix` to a GitHub
 release. A push to `main` that leaves the version alone publishes nothing.
 
-Publishing needs a repository secret named `VSCE_TOKEN`:
+### How CI signs in to the Marketplace
 
-1. In [Azure DevOps](https://dev.azure.com), open **User settings > Personal access tokens** and create a token
-   with **Organization: All accessible organizations** and the scope **Marketplace > Manage**. The account must
-   be a member of the `mlops-club` publisher.
+Today, with a personal access token in the repository secret `VSCE_TOKEN`:
+
+1. In [Azure DevOps](https://dev.azure.com/mlops-club/_usersSettings/tokens), create a token with
+   **Organization: All accessible organizations** and the scope **Marketplace > Manage**. The account must be a
+   member of the `mlops-club` publisher.
 2. Store it: `gh secret set VSCE_TOKEN --repo mlops-club/vscode-uv-script-envs`.
 
-These tokens expire after a year at most. A publish job that fails with a 401 means it is time for a new one.
+**That stops working on December 1, 2026**, when Azure DevOps
+[retires tokens scoped to all organizations](https://devblogs.microsoft.com/devops/retirement-of-global-personal-access-tokens-in-azure-devops/),
+the only kind the Marketplace accepts.
+
+The replacement, from the
+[VS Code publishing docs](https://code.visualstudio.com/api/working-with-extensions/publishing-extension), is a
+managed identity that GitHub Actions signs in as, with no stored secret. The workflow already has that path: it
+takes it when the repository variable `AZURE_CLIENT_ID` is set. It has never run, because it needs an Azure
+subscription and the `mlops-club` Microsoft account has none. With a subscription:
+
+1. Create a user-assigned managed identity. An app registration signs in but is
+   [reported](https://www.emrecodes.net/posts/2026/07/10/vscode-marketplace-managed-identity.html) to be refused
+   at the publish step.
+2. Add a federated credential to it: issuer `https://token.actions.githubusercontent.com`, subject
+   `repo:mlops-club/vscode-uv-script-envs:ref:refs/heads/main`, audience `api://AzureADTokenExchange`.
+3. Set the repository variables `AZURE_CLIENT_ID` and `AZURE_TENANT_ID` from the identity's properties
+   (`gh variable set`). They are identifiers, not secrets.
+4. Run the workflow once. The publish job prints the identity's Marketplace ID, then fails because the identity
+   is not a publisher member yet.
+5. At <https://marketplace.visualstudio.com/manage/publishers/mlops-club>, add that ID as a member with the
+   **Contributor** role, and re-run the job.
+6. Delete the `VSCE_TOKEN` secret.

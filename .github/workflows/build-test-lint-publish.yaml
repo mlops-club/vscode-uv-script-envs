@@ -7,8 +7,11 @@
 # To release, bump "version" in package.json (and CHANGELOG.md) and merge to main. A push that leaves the
 # version alone publishes nothing.
 #
-# Publishing needs the repository secret VSCE_TOKEN: an Azure DevOps personal access token with the
-# Marketplace "Manage" scope, for the mlops-club publisher. README.md has the steps.
+# Publishing signs in to the Marketplace one of two ways. README.md has the setup for both.
+# - With the repository variable AZURE_CLIENT_ID set: as a managed identity, through GitHub's OIDC token.
+#   No secret is stored. This is the path that keeps working.
+# - Otherwise: with the repository secret VSCE_TOKEN, an Azure DevOps personal access token. Azure DevOps
+#   retires the kind the Marketplace needs on December 1, 2026.
 name: Build, Test, Lint, and Publish
 
 on:
@@ -49,6 +52,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write # the version tag and the GitHub release
+      id-token: write # signing in to Azure as the managed identity
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v7
@@ -81,8 +85,26 @@ jobs:
         env:
           VERSION: ${{ steps.version.outputs.version }}
         run: npx vsce package --out "uv-script-envs-$VERSION.vsix"
-      - name: Publish to the Marketplace
-        if: steps.version.outputs.released == 'false'
+      - name: Sign In to Azure as the Managed Identity
+        if: steps.version.outputs.released == 'false' && vars.AZURE_CLIENT_ID != ''
+        uses: azure/login@v3
+        with:
+          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          allow-no-subscriptions: true
+      # The Marketplace knows the identity by this ID alone: it is what goes in the publisher's member list.
+      - name: Show the Identity's Marketplace ID
+        if: steps.version.outputs.released == 'false' && vars.AZURE_CLIENT_ID != ''
+        run: |
+          az rest --url https://app.vssps.visualstudio.com/_apis/profile/profiles/me \
+            --resource 499b84ac-1321-427f-aa17-267ca6975798 --query id --output tsv
+      - name: Publish to the Marketplace as the Managed Identity
+        if: steps.version.outputs.released == 'false' && vars.AZURE_CLIENT_ID != ''
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: npx vsce publish --azure-credential --packagePath "uv-script-envs-$VERSION.vsix"
+      - name: Publish to the Marketplace with a Token
+        if: steps.version.outputs.released == 'false' && vars.AZURE_CLIENT_ID == ''
         env:
           VSCE_PAT: ${{ secrets.VSCE_TOKEN }}
           VERSION: ${{ steps.version.outputs.version }}
