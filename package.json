@@ -2,7 +2,7 @@
   "name": "uv-script-envs",
   "displayName": "uv Script Envs",
   "description": "Open a Python script with inline dependencies (PEP 723) and get autocompletion: its uv environment is created and selected as the interpreter.",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "publisher": "mlops-club",
   "license": "Apache-2.0",
   "icon": "icon.png",

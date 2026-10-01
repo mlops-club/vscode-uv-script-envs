@@ -71,7 +71,7 @@ uv Script Envs shows a warning once when it finds Python Environments installed.
 
 ## Install
 
-From the Marketplace, once a version is published there:
+From the [Marketplace](https://marketplace.visualstudio.com/items?itemName=mlops-club.uv-script-envs):
 
 ```sh
 code --install-extension mlops-club.uv-script-envs
@@ -80,7 +80,7 @@ code --install-extension mlops-club.uv-script-envs
 Or from a `.vsix`, attached to each [release](https://github.com/mlops-club/vscode-uv-script-envs/releases):
 
 ```sh
-code --install-extension uv-script-envs-0.1.3.vsix
+code --install-extension uv-script-envs-<version>.vsix
 ```
 
 To recommend it to everyone who opens a repository, add it to that repository's `.vscode/extensions.json`:

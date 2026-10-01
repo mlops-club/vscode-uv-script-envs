@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.4
+
+- README only: a header with the logo and badges, and the demos play inline on GitHub.
+
 ## 0.1.3
 
 - First version in its own repository, published by CI.
