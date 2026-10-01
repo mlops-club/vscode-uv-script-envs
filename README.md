@@ -1,6 +1,17 @@
+<div align="center">
+
+<img src="icon.png" alt="uv Script Envs logo" width="128" />
+
 # uv Script Envs
 
-Autocompletion for Python scripts that declare their own dependencies.
+**Autocompletion for Python scripts that declare their own dependencies.**
+
+<a href="https://marketplace.visualstudio.com/items?itemName=mlops-club.uv-script-envs"><img src="https://img.shields.io/badge/VS%20Code%20Marketplace-install-22C55E?style=for-the-badge&logo=uv&logoColor=white" alt="Install from the VS Code Marketplace" /></a>
+<a href="https://github.com/mlops-club/vscode-uv-script-envs/releases/latest"><img src="https://img.shields.io/github/v/release/mlops-club/vscode-uv-script-envs?style=for-the-badge&logo=github&label=release&color=16A34A" alt="Latest release" /></a>
+<a href="https://github.com/mlops-club/vscode-uv-script-envs/actions/workflows/build-test-lint-publish.yaml"><img src="https://img.shields.io/github/actions/workflow/status/mlops-club/vscode-uv-script-envs/build-test-lint-publish.yaml?branch=main&style=for-the-badge&logo=githubactions&logoColor=white&label=build" alt="Build status" /></a>
+<a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache--2.0-15803D?style=for-the-badge&logo=apache&logoColor=white" alt="License: Apache 2.0" /></a>
+
+</div>
 
 Open a script with a [PEP 723](https://peps.python.org/pep-0723/) `# /// script` block, and this extension
 creates the script's [uv](https://docs.astral.sh/uv/) environment if it doesn't exist and selects it as the
