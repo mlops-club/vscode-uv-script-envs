@@ -24,10 +24,17 @@ import my_package   # so does this
 
 ## Demos
 
-- [Quick switch (6 s)](docs/quick-env-switch.mp4): clicking between two scripts in one folder, each getting its
-  own interpreter.
-- [Slow switch (47 s)](docs/slow-env-switch.mp4): the same, in depth. It shows each script's `# /// script`
-  block, and that the imports which resolve are the ones that block declares.
+**Quick switch (6 s).** Clicking between two scripts in one folder, each getting its own interpreter.
+
+https://github.com/user-attachments/assets/e8870eaa-458c-4161-83f2-f2eb26f730fe
+
+**Slow switch (47 s).** The same, in depth: each script's `# /// script` block, and the imports that resolve
+being the ones that block declares.
+
+https://github.com/user-attachments/assets/7faca443-e531-4919-a5dc-e8e77cb2b6db
+
+The videos play inline on GitHub. Elsewhere, such as the Marketplace page, open the files:
+[quick switch](docs/quick-env-switch.mp4), [slow switch](docs/slow-env-switch.mp4).
 
 ## Requirements
 
