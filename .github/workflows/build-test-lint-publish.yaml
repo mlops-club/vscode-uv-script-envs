@@ -1,0 +1,103 @@
+# CI for a VS Code extension: https://code.visualstudio.com/api/working-with-extensions/continuous-integration
+#
+# - Every push and pull request: lint, test, and package the extension.
+# - A push to main whose package.json version has no `v<version>` tag yet: publish that version to the
+#   Marketplace, then tag it and attach the .vsix to a GitHub release.
+#
+# To release, bump "version" in package.json (and CHANGELOG.md) and merge to main. A push that leaves the
+# version alone publishes nothing.
+#
+# Publishing needs the repository secret VSCE_TOKEN: an Azure DevOps personal access token with the
+# Marketplace "Manage" scope, for the mlops-club publisher. README.md has the steps.
+name: Build, Test, Lint, and Publish
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+          cache: npm
+      - name: Install Dependencies
+        run: npm ci
+      - name: Lint and Format
+        run: npm run lint
+      - name: Test
+        run: npm test
+      - name: Package Extension
+        run: npm run package
+
+  publish:
+    needs: check
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # the version tag and the GitHub release
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - name: Check Whether This Version Is Released
+        id: version
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          version="$(node -p "require('./package.json').version")"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          if gh release view "v$version" > /dev/null 2>&1; then
+            echo "v$version is already released, nothing to publish"
+            echo "released=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "released=false" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Setup Node.js environment
+        if: steps.version.outputs.released == 'false'
+        uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+          cache: npm
+      - name: Install Dependencies
+        if: steps.version.outputs.released == 'false'
+        run: npm ci
+      - name: Package Extension
+        if: steps.version.outputs.released == 'false'
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: npx vsce package --out "uv-script-envs-$VERSION.vsix"
+      - name: Publish to the Marketplace
+        if: steps.version.outputs.released == 'false'
+        env:
+          VSCE_PAT: ${{ secrets.VSCE_TOKEN }}
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          if [ -z "$VSCE_PAT" ]; then
+            echo "::error::The VSCE_TOKEN secret is not set, so v$VERSION was not published. See README.md, then re-run this job."
+            exit 1
+          fi
+          npx vsce publish --packagePath "uv-script-envs-$VERSION.vsix"
+      # Last, so a failed publish leaves no release behind and re-running the job tries again.
+      - name: Tag and Release on GitHub
+        if: steps.version.outputs.released == 'false'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          gh release create "v$VERSION" "uv-script-envs-$VERSION.vsix" \
+            --target "$GITHUB_SHA" --title "v$VERSION" --generate-notes

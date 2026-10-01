@@ -1,0 +1,58 @@
+{
+  "name": "uv-script-envs",
+  "displayName": "uv Script Envs",
+  "description": "Open a Python script with inline dependencies (PEP 723) and get autocompletion: its uv environment is created and selected as the interpreter.",
+  "version": "0.1.3",
+  "publisher": "mlops-club",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mlops-club/vscode-uv-script-envs.git"
+  },
+  "bugs": {
+    "url": "https://github.com/mlops-club/vscode-uv-script-envs/issues"
+  },
+  "engines": {
+    "vscode": "^1.90.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "keywords": [
+    "python",
+    "uv",
+    "pep 723",
+    "inline script metadata",
+    "virtual environment",
+    "interpreter"
+  ],
+  "main": "./extension.js",
+  "activationEvents": [
+    "onLanguage:python"
+  ],
+  "extensionDependencies": [
+    "ms-python.python"
+  ],
+  "contributes": {
+    "configuration": {
+      "title": "uv Script Envs",
+      "properties": {
+        "uvScriptEnvs.uvPath": {
+          "type": "string",
+          "default": "uv",
+          "description": "The uv executable. Give a full path if VS Code can't find uv on its PATH."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "lint": "biome check .",
+    "format": "biome check --write .",
+    "test": "node --test",
+    "package": "vsce package"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.5.15",
+    "@vscode/vsce": "^3.6.0"
+  }
+}
